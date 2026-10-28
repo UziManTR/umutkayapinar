@@ -17,3 +17,8 @@
 .text-link{border-bottom-color:rgba(168,50,64,.6)}
 .work-arrow,.item-arrow{color:var(--red)}
 .contact-link{border-bottom-color:var(--red)}
+
+/* Show artwork at its natural aspect ratio and allow each piece to have its own visual height/width. */
+.work-image{display:flex;align-items:flex-start;justify-content:center;aspect-ratio:auto!important;height:auto!important;min-height:0}
+.work-image img{width:auto!important;max-width:100%;height:auto!important;max-height:none;object-fit:contain;flex:0 1 auto;margin:0 auto}
+.work-large .work-image{aspect-ratio:auto!important}
