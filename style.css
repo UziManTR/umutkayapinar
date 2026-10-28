@@ -51,3 +51,44 @@
 .work-image{display:block!important;width:100%;padding:0!important;overflow:hidden;background:transparent!important;border-color:transparent!important}
 .work-image img{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;margin:0!important}
 @media(max-width:600px){.work-grid{gap:32px}.work-image{width:100%;overflow:hidden}.work-image img{width:100%!important}.work-meta{padding-top:13px}.section-pad{padding-left:5%;padding-right:5%}.site-header{padding-left:5%;padding-right:5%}}
+
+
+/* Premium mobile refinement: spacious single-column artwork, stable header, no horizontal overflow. */
+@media(max-width:600px){
+  html{scroll-padding-top:76px}
+  .site-header{position:absolute;gap:10px}
+  .wordmark{font-size:23px;letter-spacing:-1.5px}
+  .language-switch{gap:7px;margin-right:10px}
+  .language-toggle{font-size:10px;padding:8px 3px}
+  .hero{min-height:700px;height:100svh;padding-top:100px;padding-bottom:42px}
+  .hero-content{max-width:100%;padding:58px 0 42px}
+  .hero-title{font-size:clamp(52px,12.4vw,76px);line-height:1.02;overflow-wrap:normal}
+  .hero-art{right:-42%;top:30%;opacity:.32}
+  .hero-bottom{max-width:100%;align-items:flex-end}
+  .hero-description{max-width:calc(100% - 60px);line-height:1.7}
+  .section-pad{padding:72px 5%}
+  .intro-grid,.research-grid{gap:28px;padding-top:35px}
+  .works-heading{padding:35px 0 28px}
+  .work-grid{grid-template-columns:minmax(0,1fr);gap:34px}
+  .work-card,.work-large,.work-offset{grid-column:auto;grid-row:auto;margin-top:0;min-width:0}
+  .work-image{width:100%;border:0!important}
+  .work-image img{width:100%!important;height:auto!important;max-width:100%!important;object-fit:contain!important}
+  .work-meta{gap:10px}
+  .work-meta h3{font-size:21px}
+  .work-meta p{font-size:10px}
+  .bio-heading{gap:18px}
+  .timeline li{grid-template-columns:58px minmax(0,1fr);gap:10px}
+  .timeline p{font-size:12px;overflow-wrap:anywhere}
+  .contact h2{font-size:clamp(58px,14vw,84px)}
+  .contact-details{max-width:100%}
+  .contact-detail{grid-template-columns:60px minmax(0,1fr) 14px;gap:8px}
+  .contact-detail>span:nth-child(2){overflow-wrap:anywhere}
+  .contact-orbit{right:-62%;opacity:.25}
+  .site-footer{gap:12px}
+}
+@media(max-width:360px){
+  .hero-topline{letter-spacing:.06em}
+  .hero-title{font-size:49px}
+  .language-switch{margin-right:4px}
+  .contact-detail{font-size:11px}
+}
