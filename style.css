@@ -22,3 +22,21 @@
 .work-image{display:flex;align-items:flex-start;justify-content:center;aspect-ratio:auto!important;height:auto!important;min-height:0}
 .work-image img{width:auto!important;max-width:100%;height:auto!important;max-height:none;object-fit:contain;flex:0 1 auto;margin:0 auto}
 .work-large .work-image{aspect-ratio:auto!important}
+
+/* Professional finishing pass */
+:root{--blue:#79b9ec;--red:#9d3442;--line:rgba(238,234,225,.13)}
+.language-label{font-size:10px;letter-spacing:.12em;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
+.language-label span{font-size:7px;color:var(--blue)}
+.desktop-nav a:focus-visible,.round-link:focus-visible,.text-link:focus-visible,.work-card:focus-visible,.back-top:focus-visible,.menu-toggle:focus-visible{outline:2px solid var(--blue);outline-offset:5px}
+.work-card{align-self:start}
+.work-image{width:100%;border:1px solid rgba(238,234,225,.08);background:#171a1f}
+.work-image img{max-width:100%;vertical-align:top}
+.work-image:after{pointer-events:none}
+.research-item{cursor:default}
+.research-item .item-arrow{display:none}
+.contact-description{max-width:430px;color:var(--muted);font-size:13px}
+.contact h2{margin-bottom:24px}
+.hero-title em,.section-heading em,.statement blockquote em,.contact h2 em{font-style:italic}
+.site-header{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:rgba(17,17,15,.35)}
+::selection{background:var(--blue);color:#101419}
+@media(max-width:600px){.language-label{margin-left:auto;margin-right:15px}.research-item{cursor:default}.contact-description{max-width:300px}}
