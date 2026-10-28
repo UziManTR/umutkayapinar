@@ -1,4 +1,22 @@
 (() => {
+
+  const languageButtons = document.querySelectorAll("[data-language]");
+  const setLanguage = language => {
+    document.documentElement.lang = language;
+    document.querySelectorAll("[data-tr][data-en]").forEach(el => { el.innerHTML = el.dataset[language]; });
+    document.querySelectorAll("[data-bio-language]").forEach(el => { el.hidden = el.dataset.bioLanguage !== language; });
+    languageButtons.forEach(button => {
+      const active = button.dataset.language === language;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    const menu = document.querySelector(".menu-toggle");
+    if (menu) menu.setAttribute("aria-label", language === "tr" ? "Menüyü aç" : "Open menu");
+    document.querySelector(".desktop-nav")?.setAttribute("aria-label", language === "tr" ? "Ana navigasyon" : "Main navigation");
+    document.title = language === "tr" ? "Umut Kayapınar — Sanat · Araştırma · Biyografi" : "Umut Kayapınar — Art · Research · Biography";
+  };
+  languageButtons.forEach(button => button.addEventListener("click", () => setLanguage(button.dataset.language)));
+
   const year = document.querySelector("#year");
   if (year) year.textContent = new Date().getFullYear();
 
