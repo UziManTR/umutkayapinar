@@ -122,3 +122,20 @@ html{scrollbar-color:#426d8c var(--bg);scrollbar-width:thin}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+
+/* Interactive year archive */
+.year-picker{margin:4px 0 44px;padding:24px 0 22px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.year-picker-label{display:flex;align-items:center;gap:14px;font-size:9px;letter-spacing:.18em;color:var(--muted);margin:0 0 18px}
+.year-picker-line{height:1px;flex:1;background:var(--line)}
+.year-buttons{display:flex;flex-wrap:wrap;gap:8px}
+.year-button{position:relative;min-width:64px;padding:11px 13px;border:1px solid var(--line);color:var(--muted);background:transparent;font-size:11px;letter-spacing:.05em;cursor:pointer;transition:color .25s,border-color .25s,background .25s,transform .25s}
+.year-button:hover{color:var(--text);border-color:var(--blue);transform:translateY(-2px)}
+.year-button.active{color:var(--bg);background:var(--blue);border-color:var(--blue)}
+.year-status{margin:18px 0 0;font:italic 17px var(--serif);color:var(--text)}
+.year-status span{font:400 10px var(--sans);letter-spacing:.06em;color:var(--muted);margin-left:5px}
+.work-card.year-hidden{display:none!important}
+.year-empty{padding:65px 20px;text-align:center;border:1px solid var(--line);font:italic 25px var(--serif);color:var(--muted)}
+.year-empty[hidden]{display:none!important}
+@media(max-width:600px){.year-picker{margin-bottom:32px}.year-buttons{gap:6px}.year-button{min-width:calc(25% - 5px);padding:11px 5px}.year-empty{padding:45px 16px;font-size:21px}}
+@media(prefers-reduced-motion:reduce){.year-button{transition:none}}
