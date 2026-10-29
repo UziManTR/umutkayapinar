@@ -412,7 +412,7 @@
       galleryScene.add(frame);
       const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, toneMapped: false });
       const placeholder = new THREE.Mesh(new THREE.PlaneGeometry(frameWidth, frameHeight), mat);
-      placeholder.position.set(side * (corridorWidth / 2 - 0.31), 2.35, z);
+      placeholder.position.set(side * (corridorWidth / 2 - 0.56), 2.35, z);
       placeholder.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
       placeholder.userData.artwork = item;
       placeholder.userData.z = z;
