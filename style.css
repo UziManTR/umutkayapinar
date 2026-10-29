@@ -373,3 +373,156 @@ a,button{scroll-margin-top:90px}
 .gallery-year-overlay{z-index:6}
 @media(max-width:600px){.gallery-year-overlay{top:12px;padding:8px 14px;font-size:11px;letter-spacing:.2em}}
 @media(prefers-reduced-motion:reduce){.gallery-year-overlay.year-change{animation:none}}
+
+
+/* 2026 visual upgrade: electric-blue art direction, sharper hierarchy, premium motion. */
+:root{
+  --blue:#68b9ff;
+  --gold:#68b9ff;
+  --accent:#68b9ff;
+  --accent-soft:rgba(74,164,255,.16);
+}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{
+  background:
+    radial-gradient(ellipse at 82% 8%,rgba(35,104,176,.12),transparent 34%),
+    radial-gradient(ellipse at 10% 55%,rgba(37,84,142,.08),transparent 36%),
+    #090b0f;
+  color:#f0f3f8;
+}
+::selection{background:rgba(91,174,255,.35);color:#fff}
+.site-header{
+  background:rgba(8,11,16,.72);
+  border-bottom:1px solid rgba(125,184,255,.13);
+  backdrop-filter:blur(22px) saturate(150%);
+  -webkit-backdrop-filter:blur(22px) saturate(150%);
+  transition:background .3s,border-color .3s;
+}
+.wordmark{color:#f4f7fb;letter-spacing:-.09em}
+.wordmark span{color:#68b9ff;text-shadow:0 0 22px #68b9ff88}
+.desktop-nav a{position:relative;transition:color .25s}
+.desktop-nav a::after{
+  content:"";position:absolute;left:0;right:100%;bottom:-8px;height:1px;
+  background:#68b9ff;transition:right .28s ease;
+}
+.desktop-nav a:hover{color:#9ed3ff}
+.desktop-nav a:hover::after{right:0}
+.language-toggle.active{color:#8bcaff}
+.hero{
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse at 73% 45%,rgba(33,104,178,.13),transparent 34%),
+    linear-gradient(120deg,rgba(255,255,255,.012),transparent 55%);
+}
+.hero::before{
+  content:"";position:absolute;z-index:-1;inset:12% 0 8% 48%;
+  background:radial-gradient(ellipse,rgba(38,126,218,.09),transparent 68%);
+  pointer-events:none;
+}
+.hero-topline,.section-label,.year-picker-label{color:#8f9aaa}
+.hero-title{letter-spacing:-.075em;text-wrap:balance}
+.hero-title em,.section-heading em{
+  color:#8bcaff;
+  text-shadow:0 0 48px rgba(64,151,236,.12);
+}
+.eyebrow-line,.index-line{background:#68b9ff}
+.hero-art{filter:drop-shadow(0 30px 65px rgba(28,104,181,.16))}
+.hero-art .art-sun{
+  background:
+    radial-gradient(circle at 29% 24%,rgba(255,255,255,.95) 0%,rgba(172,222,255,.96) 4%,transparent 19%),
+    radial-gradient(circle at 34% 29%,#b8e4ff 0%,#58b5ff 25%,#1973c6 58%,#0a2a55 82%,#071629 100%) !important;
+  box-shadow:0 0 34px rgba(60,160,255,.35),0 0 100px rgba(34,124,228,.27),inset -16px -22px 34px rgba(1,12,31,.52),inset 8px 8px 20px rgba(255,255,255,.12)!important;
+  border:1px solid rgba(157,213,255,.28);
+  animation:bluePlanetFloat 8s ease-in-out infinite!important;
+}
+.hero-art .shape-one,.hero-art .shape-two{
+  filter:drop-shadow(0 15px 28px rgba(28,126,220,.16));
+}
+.hero-art .shape-one{background:linear-gradient(145deg,#8ed4ff,#2367ad 65%,#111e36)}
+.hero-art .shape-two{background:linear-gradient(135deg,#d2efff,#347fc3 48%,#10182a)}
+.art-caption{color:#8bcaff}
+.art-caption span{color:#8290a3}
+@keyframes bluePlanetFloat{
+  0%,100%{transform:translate3d(0,0,0) rotate(0deg)}
+  50%{transform:translate3d(0,-15px,0) rotate(4deg)}
+}
+.section-pad{position:relative}
+.section-label{border-color:rgba(131,177,225,.17)}
+.gold-dot{background:#68b9ff;box-shadow:0 0 14px #68b9ff99}
+.section-heading{letter-spacing:-.055em}
+.intro-copy .lead{color:#e1e9f3}
+.intro-copy p:not(.lead){color:#a4afbe;line-height:1.95}
+.text-link{color:#8bcaff;border-color:rgba(104,185,255,.45)}
+.text-link:hover{color:#fff;border-color:#68b9ff}
+.works-heading p{color:#9ba9ba;line-height:1.8}
+.year-picker{
+  border:1px solid rgba(112,172,229,.14);
+  border-radius:18px;
+  padding:clamp(18px,3vw,30px);
+  background:linear-gradient(145deg,rgba(22,34,49,.58),rgba(10,13,19,.74));
+  box-shadow:0 22px 70px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.035);
+}
+.year-picker-line{background:rgba(104,185,255,.3)}
+.year-button{
+  border:1px solid rgba(133,172,212,.18);
+  border-radius:999px;
+  background:rgba(255,255,255,.018);
+  color:#aebdce;
+  transition:transform .22s,border-color .22s,background .22s,color .22s,box-shadow .22s;
+}
+.year-button:hover{transform:translateY(-2px);border-color:#68b9ff;color:#eaf6ff}
+.year-button.active{
+  background:linear-gradient(135deg,#a9ddff,#4ca8fa 58%,#2475ca);
+  border-color:transparent;color:#06111f;
+  box-shadow:0 6px 24px rgba(65,155,244,.24);
+}
+.year-status{color:#8fcaff}
+.gallery-3d{
+  border:1px solid rgba(104,185,255,.26)!important;
+  border-radius:22px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(50,133,210,.18),transparent 48%),linear-gradient(145deg,#111b29,#080b11 68%)!important;
+  box-shadow:0 35px 100px rgba(0,0,0,.38),0 0 70px rgba(39,123,205,.07),inset 0 1px rgba(255,255,255,.06)!important;
+}
+.gallery-3d-stage{
+  border-radius:14px;
+  background:radial-gradient(ellipse at 50% 35%,#182b41,#0b111b 62%,#070a0f)!important;
+  border-color:rgba(111,180,244,.16)!important;
+}
+.gallery-year-overlay{
+  color:#c8e8ff!important;
+  border-color:rgba(104,185,255,.42)!important;
+  background:rgba(4,14,27,.78)!important;
+  box-shadow:0 8px 32px #0008,0 0 28px rgba(65,155,244,.1)!important;
+}
+.gallery-3d-kicker{color:#83c7ff}
+.gallery-3d-top h3{color:#f1f7ff}
+.gallery-3d-controls button,.gallery-3d-footer button{
+  color:#8bcaff;
+  border-color:rgba(104,185,255,.32);
+  transition:background .2s,color .2s,transform .2s,border-color .2s;
+}
+.gallery-3d-controls button:hover,.gallery-3d-footer button:hover{
+  background:#68b9ff;color:#06111f;border-color:#68b9ff;transform:translateY(-1px)
+}
+.gallery-3d-caption{border-color:rgba(123,174,224,.16);color:#eef6ff}
+.gallery-3d-loader{border-top-color:#68b9ff}
+footer,.site-footer{border-color:rgba(120,167,216,.15)}
+a:focus-visible,button:focus-visible{outline:2px solid #68b9ff;outline-offset:4px}
+.cursor-glow{
+  background:radial-gradient(circle,rgba(57,146,234,.12),transparent 68%);
+  mix-blend-mode:screen;
+}
+.grain{opacity:.12}
+@media(min-width:1000px){
+  .hero-content{max-width:900px}
+  .section-pad{padding-left:clamp(48px,8vw,150px);padding-right:clamp(48px,8vw,150px)}
+}
+@media(max-width:700px){
+  .hero-art .art-sun{width:clamp(88px,25vw,145px);height:clamp(88px,25vw,145px)}
+  .year-picker{border-radius:14px}
+  .gallery-3d{border-radius:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-art .art-sun{animation:none!important}
+  *,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
