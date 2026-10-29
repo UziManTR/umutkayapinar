@@ -174,11 +174,6 @@
   const gallery3DStage = document.querySelector("#gallery-3d-stage");
   const gallery3DStatus = document.querySelector("#gallery-3d-status");
   const gallery3DCaption = document.querySelector("#gallery-3d-caption");
-  galleryYearOverlay = document.createElement("div");
-  galleryYearOverlay.className = "gallery-year-overlay";
-  galleryYearOverlay.setAttribute("aria-live", "polite");
-  galleryYearOverlay.textContent = "— 2014 —";
-  gallery3DStage?.appendChild(galleryYearOverlay);
   let threeModule = null;
   let orbitModule = null;
   let galleryRenderer = null;
@@ -200,6 +195,11 @@
   let galleryCentralLight = null;
   let galleryYearMarkers = [];
   let galleryYearOverlay = null;
+  galleryYearOverlay = document.createElement("div");
+  galleryYearOverlay.className = "gallery-year-overlay";
+  galleryYearOverlay.setAttribute("aria-live", "polite");
+  galleryYearOverlay.textContent = "— 2014 —";
+  gallery3DStage?.appendChild(galleryYearOverlay);
 
   const galleryText = (tr, en) => document.documentElement.lang === "en" ? en : tr;
   const setGalleryStatus = message => {
@@ -424,11 +424,12 @@
     galleryControls.enableDamping = true;
     galleryControls.dampingFactor = 0.06;
     galleryControls.enablePan = false;
+    galleryControls.enableZoom = false;
     galleryControls.rotateSpeed = 0.48;
     galleryControls.zoomSpeed = 0.75;
     galleryControls.minDistance = 2.2;
     galleryControls.maxDistance = 18;
-    galleryControls.target.set(0, 1.9, 0);
+    galleryControls.target.set(0, 2.1, -3);
     galleryControls.update();
     galleryRenderer.render(galleryScene, galleryCamera);
     updateGalleryCaption();
@@ -459,6 +460,15 @@
         galleryRenderer.setSize(gallery3DStage.clientWidth, gallery3DStage.clientHeight, false);
       });
       galleryResizeObserver.observe(gallery3DStage);
+      galleryRenderer.domElement.addEventListener("wheel", event => {
+        if (!galleryIsOpen || !galleryCamera || !galleryControls) return;
+        event.preventDefault();
+        const step = Math.sign(event.deltaY) * 2.2;
+        const nextZ = Math.max(-Math.max(24, document.querySelectorAll(".work-card").length * 2.75 + 8) + 3, Math.min(5.5, galleryCamera.position.z - step));
+        const dz = nextZ - galleryCamera.position.z;
+        galleryCamera.position.z = nextZ;
+        galleryControls.target.z += dz;
+      }, { passive: false });
       galleryRenderer.domElement.addEventListener("pointerdown", event => {
         galleryPointerDown = { x: event.clientX, y: event.clientY };
         galleryDragged = false;
