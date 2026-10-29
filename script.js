@@ -285,8 +285,8 @@
     const THREE = threeModule;
     disposeGalleryScene();
     galleryScene = new THREE.Scene();
-    galleryScene.background = new THREE.Color("#090b0e");
-    galleryScene.fog = new THREE.Fog("#090b0e", 15, 42);
+    galleryScene.background = new THREE.Color("#050914");
+    galleryScene.fog = new THREE.Fog("#050914", 18, 48);
     const allCards = [...document.querySelectorAll(".work-card")];
     const items = allCards.map(card => {
       const image = card.querySelector("img");
@@ -304,7 +304,7 @@
     }
     galleryRoomRadius = Math.max(5.2, items.length * 2.65 / (Math.PI * 2));
     galleryYearMarkers = [];
-    galleryCamera = new THREE.PerspectiveCamera(48, gallery3DStage.clientWidth / Math.max(1, gallery3DStage.clientHeight), 0.1, 100);
+    galleryCamera = new THREE.PerspectiveCamera(68, gallery3DStage.clientWidth / Math.max(1, gallery3DStage.clientHeight), 0.1, 120);
     galleryCamera.position.set(0, 2.25, 4.5);
     galleryScene.add(new THREE.HemisphereLight(0xbdd8f0, 0x17110c, 2.0));
     const centralLight = new THREE.PointLight(0xf4e4c8, 34, galleryRoomRadius * 3.4, 1.8);
@@ -332,7 +332,7 @@
     galleryScene.add(blueLight);
     // Long museum corridor with a real walking axis, paintings on both walls, and year groups.
     const corridorLength = Math.max(24, items.length * 2.75 + 8);
-    const corridorWidth = 10;
+    const corridorWidth = 7.2;
     const corridorEnd = -corridorLength;
     galleryScene.fog = new THREE.Fog("#090b0e", 18, corridorLength + 12);
     galleryCamera.far = corridorLength + 30;
@@ -340,19 +340,19 @@
     galleryRoomRadius = corridorLength / 2;
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(corridorWidth, corridorLength),
-      new THREE.MeshStandardMaterial({ color: 0x171815, roughness: 0.72, metalness: 0.08 })
+      new THREE.MeshStandardMaterial({ color: 0x0a1020, roughness: 0.72, metalness: 0.12 })
     );
     floor.rotation.x = -Math.PI / 2;
     floor.position.set(0, -0.04, corridorEnd / 2);
     galleryScene.add(floor);
     const ceiling = new THREE.Mesh(
       new THREE.PlaneGeometry(corridorWidth, corridorLength),
-      new THREE.MeshStandardMaterial({ color: 0x10110f, roughness: 0.95, side: THREE.DoubleSide })
+      new THREE.MeshStandardMaterial({ color: 0x080d19, roughness: 0.95, side: THREE.DoubleSide })
     );
     ceiling.rotation.x = Math.PI / 2;
     ceiling.position.set(0, 5.4, corridorEnd / 2);
     galleryScene.add(ceiling);
-    const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x24241f, roughness: 0.9, side: THREE.DoubleSide });
+    const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x101a2b, roughness: 0.9, side: THREE.DoubleSide });
     [-corridorWidth / 2, corridorWidth / 2].forEach(x => {
       const wall = new THREE.Mesh(new THREE.PlaneGeometry(corridorLength, 5.4), wallMaterial);
       wall.rotation.y = x < 0 ? Math.PI / 2 : -Math.PI / 2;
@@ -360,7 +360,7 @@
       galleryScene.add(wall);
       const rail = new THREE.Mesh(
         new THREE.BoxGeometry(0.06, 0.06, corridorLength),
-        new THREE.MeshStandardMaterial({ color: 0xc9a96e, metalness: 0.55, roughness: 0.38 })
+        new THREE.MeshStandardMaterial({ color: 0xc9a96e, metalness: 0.72, roughness: 0.3 })
       );
       rail.position.set(x < 0 ? x + 0.03 : x - 0.03, 4.95, corridorEnd / 2);
       galleryScene.add(rail);
@@ -391,7 +391,7 @@
     items.forEach((item, index) => {
       const side = index % 2 === 0 ? -1 : 1;
       const z = -3.2 - index * 2.65;
-      const x = side * (corridorWidth / 2 - 0.42);
+      const x = side * (corridorWidth / 2 - 0.45);
       const frameWidth = 2.05;
       const frameHeight = 2.55;
       if (!yearGroups.has(item.yearKey)) yearGroups.set(item.yearKey, z);
@@ -401,9 +401,9 @@
       );
       frame.position.set(x, 2.35, z);
       galleryScene.add(frame);
-      const mat = new THREE.MeshStandardMaterial({ color: 0x242424, roughness: 0.82, side: THREE.DoubleSide });
+      const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, toneMapped: false });
       const placeholder = new THREE.Mesh(new THREE.PlaneGeometry(frameWidth, frameHeight), mat);
-      placeholder.position.set(side * (corridorWidth / 2 - 0.30), 2.35, z);
+      placeholder.position.set(side * (corridorWidth / 2 - 0.31), 2.35, z);
       placeholder.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
       placeholder.userData.artwork = item;
       placeholder.userData.z = z;
