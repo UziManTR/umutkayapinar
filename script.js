@@ -88,4 +88,32 @@
       target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
     });
   });
+  
+  // Interactive year archive: filter existing artwork cards without relying on Wix links.
+  const yearButtons = document.querySelectorAll(".year-button");
+  const artworkCards = document.querySelectorAll(".work-card");
+  const yearStatus = document.querySelector(".year-status");
+  const yearEmpty = document.querySelector(".year-empty");
+  const selectYear = selectedYear => {
+    let visibleCount = 0;
+    artworkCards.forEach(card => {
+      const stamp = card.querySelector(".image-index")?.textContent.trim() || "";
+      const matches = stamp.startsWith(String(selectedYear) + " ·");
+      card.classList.toggle("year-hidden", !matches);
+      if (matches) {
+        visibleCount++;
+        card.classList.remove("is-visible");
+        requestAnimationFrame(() => card.classList.add("is-visible"));
+      }
+    });
+    yearButtons.forEach(button => {
+      const active = button.dataset.year === String(selectedYear);
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    if (yearStatus) yearStatus.innerHTML = selectedYear + ' <span>' + (document.documentElement.lang === "en" ? "selected" : "yılı seçildi") + '</span>';
+    if (yearEmpty) yearEmpty.hidden = visibleCount > 0;
+  };
+  yearButtons.forEach(button => button.addEventListener("click", () => selectYear(button.dataset.year)));
+  if (yearButtons.length) selectYear(2014);
 })();
