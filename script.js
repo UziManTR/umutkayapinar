@@ -371,7 +371,12 @@
     );
     endWall.position.set(0, 2.68, corridorEnd);
     galleryScene.add(endWall);
-    const startWall = new THREE.Mesh(\n      new THREE.PlaneGeometry(corridorWidth, 5.4),\n      new THREE.MeshStandardMaterial({ color: 0x101a2b, roughness: 0.9, side: THREE.DoubleSide })\n    );\n    startWall.position.set(0, 2.68, 6.2);\n    galleryScene.add(startWall);
+    const startWall = new THREE.Mesh(
+      new THREE.PlaneGeometry(corridorWidth, 5.4),
+      new THREE.MeshStandardMaterial({ color: 0x101a2b, roughness: 0.9, side: THREE.DoubleSide })
+    );
+    startWall.position.set(0, 2.68, 6.2);
+    galleryScene.add(startWall);
     const ceilingLights = [];
     for (let z = -3; z > corridorEnd; z -= 7) {
       const fixture = new THREE.Mesh(
