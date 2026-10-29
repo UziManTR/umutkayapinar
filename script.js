@@ -120,4 +120,46 @@
   };
   yearButtons.forEach(button => button.addEventListener("click", () => selectYear(button.dataset.year)));
   if (yearButtons.length) selectYear("2014");
+
+  // Full-screen artwork viewer: tap a work to inspect it without leaving the archive.
+  const lightbox = document.createElement("div");
+  lightbox.className = "art-lightbox";
+  lightbox.setAttribute("role", "dialog");
+  lightbox.setAttribute("aria-modal", "true");
+  lightbox.setAttribute("aria-label", "Eser görüntüleyici");
+  lightbox.innerHTML = '<div class="art-lightbox-top"><span>UMUT KAYAPINAR · ARŞİV</span><button type="button" class="art-lightbox-close" aria-label="Kapat">×</button></div><div class="art-lightbox-image-wrap"><img class="art-lightbox-image" alt=""></div><div class="art-lightbox-bottom"><span class="art-lightbox-title"></span><small class="art-lightbox-year"></small></div>';
+  document.body.appendChild(lightbox);
+  const lightboxImage = lightbox.querySelector(".art-lightbox-image");
+  const lightboxTitle = lightbox.querySelector(".art-lightbox-title");
+  const lightboxYear = lightbox.querySelector(".art-lightbox-year");
+  const lightboxClose = lightbox.querySelector(".art-lightbox-close");
+  let previousFocus = null;
+  const closeLightbox = () => {
+    lightbox.classList.remove("open");
+    document.body.classList.remove("lightbox-open");
+    lightboxImage.removeAttribute("src");
+    previousFocus?.focus();
+  };
+  artworkCards.forEach(card => {
+    card.addEventListener("click", event => {
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      const image = card.querySelector("img");
+      if (!image) return;
+      previousFocus = card;
+      lightboxImage.src = image.currentSrc || image.src;
+      lightboxImage.alt = image.alt;
+      lightboxTitle.textContent = card.querySelector("h3")?.textContent.trim() || image.alt;
+      lightboxYear.textContent = card.querySelector(".image-index")?.textContent.trim() || "";
+      lightbox.classList.add("open");
+      document.body.classList.add("lightbox-open");
+      lightboxClose.focus();
+    });
+  });
+  lightboxClose.addEventListener("click", closeLightbox);
+  lightbox.addEventListener("click", event => { if (event.target === lightbox || event.target.classList.contains("art-lightbox-image-wrap")) closeLightbox(); });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && lightbox.classList.contains("open")) closeLightbox();
+  });
+
 })();
