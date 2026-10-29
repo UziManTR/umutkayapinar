@@ -168,6 +168,8 @@
   const open3DButton = document.querySelector("#open-3d-gallery");
   const close3DButton = document.querySelector("#close-3d-gallery");
   const reset3DButton = document.querySelector("#gallery-3d-reset");
+  const previous3DButton = document.querySelector("#gallery-3d-left");
+  const next3DButton = document.querySelector("#gallery-3d-right");
   const gallery3D = document.querySelector("#gallery-3d");
   const gallery3DStage = document.querySelector("#gallery-3d-stage");
   const gallery3DStatus = document.querySelector("#gallery-3d-status");
@@ -186,6 +188,9 @@
   let galleryRoomRadius = 6;
   let galleryArtMeshes = [];
   let galleryFrameId = 0;
+  let galleryCameraTween = null;
+  let galleryPointerDown = null;
+  let galleryDragged = false;
 
   const galleryText = (tr, en) => document.documentElement.lang === "en" ? en : tr;
   const setGalleryStatus = message => {
@@ -222,14 +227,33 @@
     });
     galleryArtMeshes = [];
   };
+  const animateGalleryCamera = (position, target, duration = 900) => {
+    if (!galleryCamera || !galleryControls || !threeModule) return;
+    galleryCameraTween = {
+      started: performance.now(),
+      duration,
+      fromPosition: galleryCamera.position.clone(),
+      toPosition: position.clone(),
+      fromTarget: galleryControls.target.clone(),
+      toTarget: target.clone()
+    };
+  };
   const resetGalleryView = () => {
-    if (!galleryControls || !galleryCamera) return;
-    galleryControls.target.set(0, 1.9, 0);
-    galleryCamera.position.set(0, 2.15, Math.max(2.2, galleryRoomRadius * 0.48));
+    if (!galleryControls || !galleryCamera || !threeModule) return;
     galleryControls.minDistance = 2.2;
     galleryControls.maxDistance = galleryRoomRadius + 3;
-    galleryControls.update();
+    animateGalleryCamera(
+      new threeModule.Vector3(0, 2.15, Math.max(2.2, galleryRoomRadius * 0.48)),
+      new threeModule.Vector3(0, 1.9, 0)
+    );
     updateGalleryCaption();
+  };
+  const rotateGalleryView = direction => {
+    if (!galleryCamera || !galleryControls || !threeModule) return;
+    const offset = galleryCamera.position.clone().sub(galleryControls.target);
+    const angle = direction * Math.PI / 4;
+    offset.applyAxisAngle(new threeModule.Vector3(0, 1, 0), angle);
+    animateGalleryCamera(galleryControls.target.clone().add(offset), galleryControls.target.clone(), 650);
   };
   const buildGalleryScene = () => {
     if (!threeModule || !galleryRenderer || !gallery3DStage) return;
@@ -382,7 +406,19 @@
         galleryRenderer.setSize(gallery3DStage.clientWidth, gallery3DStage.clientHeight, false);
       });
       galleryResizeObserver.observe(gallery3DStage);
+      galleryRenderer.domElement.addEventListener("pointerdown", event => {
+        galleryPointerDown = { x: event.clientX, y: event.clientY };
+        galleryDragged = false;
+      });
+      galleryRenderer.domElement.addEventListener("pointermove", event => {
+        if (!galleryPointerDown) return;
+        if (Math.hypot(event.clientX - galleryPointerDown.x, event.clientY - galleryPointerDown.y) > 6) galleryDragged = true;
+      });
+      galleryRenderer.domElement.addEventListener("pointerup", () => {
+        galleryPointerDown = null;
+      });
       galleryRenderer.domElement.addEventListener("click", event => {
+        if (galleryDragged) { galleryDragged = false; return; }
         if (!galleryRaycaster || !galleryCamera || !galleryArtMeshes.length) return;
         const rect = galleryRenderer.domElement.getBoundingClientRect();
         galleryPointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
@@ -392,15 +428,15 @@
         const mesh = hit.object;
         const art = mesh.userData.artwork;
         const a = mesh.userData.angle;
-        galleryControls.target.set(mesh.position.x, 2.15, mesh.position.z);
-        galleryCamera.position.set(
+        const target = new threeModule.Vector3(mesh.position.x, 2.15, mesh.position.z);
+        const destination = new threeModule.Vector3(
           mesh.position.x - Math.sin(a) * 2.75,
           2.45,
           mesh.position.z - Math.cos(a) * 2.75
         );
         galleryControls.minDistance = 1.4;
         galleryControls.maxDistance = galleryRoomRadius + 3;
-        galleryControls.update();
+        animateGalleryCamera(destination, target, 1050);
         updateGalleryCaption(art.title, art.year);
       });
     } catch (error) {
@@ -412,6 +448,14 @@
   const galleryAnimate = () => {
     if (!galleryIsOpen || !galleryRenderer || !galleryScene || !galleryCamera) return;
     galleryAnimation = requestAnimationFrame(galleryAnimate);
+    if (galleryCameraTween && threeModule) {
+      const tween = galleryCameraTween;
+      const progress = Math.min(1, (performance.now() - tween.started) / tween.duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      galleryCamera.position.lerpVectors(tween.fromPosition, tween.toPosition, eased);
+      galleryControls.target.lerpVectors(tween.fromTarget, tween.toTarget, eased);
+      if (progress >= 1) galleryCameraTween = null;
+    }
     galleryControls?.update();
     galleryRenderer.render(galleryScene, galleryCamera);
   };
@@ -443,6 +487,8 @@
   open3DButton?.addEventListener("click", openGallery3D);
   close3DButton?.addEventListener("click", closeGallery3D);
   reset3DButton?.addEventListener("click", resetGalleryView);
+  previous3DButton?.addEventListener("click", () => rotateGalleryView(-1));
+  next3DButton?.addEventListener("click", () => rotateGalleryView(1));
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && galleryIsOpen) closeGallery3D();
   });
