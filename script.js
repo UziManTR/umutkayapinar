@@ -331,8 +331,8 @@
     blueLight.position.set(-galleryRoomRadius * 0.5, 3, -1);
     galleryScene.add(blueLight);
     // Long museum corridor with a real walking axis, paintings on both walls, and year groups.
-    const corridorLength = Math.max(24, items.length * 2.75 + 8);
-    const corridorWidth = 7.2;
+    const corridorLength = Math.max(30, items.length * 3.65 + 10);
+    const corridorWidth = 10.5;
     const corridorEnd = -corridorLength;
     galleryScene.fog = new THREE.Fog("#090b0e", 18, corridorLength + 12);
     galleryCamera.far = corridorLength + 30;
@@ -370,7 +370,7 @@
       new THREE.MeshStandardMaterial({ color: 0x24241f, roughness: 0.9, side: THREE.DoubleSide })
     );
     endWall.position.set(0, 2.68, corridorEnd);
-    galleryScene.add(endWall);
+    galleryScene.add(endWall);\n    const startWall = new THREE.Mesh(\n      new THREE.PlaneGeometry(corridorWidth, 5.4),\n      new THREE.MeshStandardMaterial({ color: 0x101a2b, roughness: 0.9, side: THREE.DoubleSide })\n    );\n    startWall.position.set(0, 2.68, 6.2);\n    galleryScene.add(startWall);
     const ceilingLights = [];
     for (let z = -3; z > corridorEnd; z -= 7) {
       const fixture = new THREE.Mesh(
@@ -396,7 +396,7 @@
       const frameHeight = 2.55;
       if (!yearGroups.has(item.yearKey)) yearGroups.set(item.yearKey, z);
       const frame = new THREE.Mesh(
-        new THREE.BoxGeometry(0.14, frameHeight + 0.2, frameWidth + 0.2),
+        new THREE.BoxGeometry(0.16, frameHeight + 0.16, frameWidth + 0.16),
         new THREE.MeshStandardMaterial({ color: 0x9b8053, metalness: 0.72, roughness: 0.32 })
       );
       frame.position.set(x, 2.35, z);
@@ -487,7 +487,7 @@
         if (!galleryIsOpen || !galleryCamera || !galleryControls) return;
         event.preventDefault();
         const step = Math.sign(event.deltaY) * 2.2;
-        const nextZ = Math.max(-Math.max(24, document.querySelectorAll(".work-card").length * 2.75 + 8) + 3, Math.min(5.5, galleryCamera.position.z - step));
+        const nextZ = Math.max(-Math.max(24, document.querySelectorAll(".work-card").length * 3.65 + 10) + 3, Math.min(5.5, galleryCamera.position.z - step));
         const dz = nextZ - galleryCamera.position.z;
         galleryCamera.position.z = nextZ;
         galleryControls.target.z += dz;
