@@ -370,7 +370,8 @@
       new THREE.MeshStandardMaterial({ color: 0x24241f, roughness: 0.9, side: THREE.DoubleSide })
     );
     endWall.position.set(0, 2.68, corridorEnd);
-    galleryScene.add(endWall);\n    const startWall = new THREE.Mesh(\n      new THREE.PlaneGeometry(corridorWidth, 5.4),\n      new THREE.MeshStandardMaterial({ color: 0x101a2b, roughness: 0.9, side: THREE.DoubleSide })\n    );\n    startWall.position.set(0, 2.68, 6.2);\n    galleryScene.add(startWall);
+    galleryScene.add(endWall);
+    const startWall = new THREE.Mesh(\n      new THREE.PlaneGeometry(corridorWidth, 5.4),\n      new THREE.MeshStandardMaterial({ color: 0x101a2b, roughness: 0.9, side: THREE.DoubleSide })\n    );\n    startWall.position.set(0, 2.68, 6.2);\n    galleryScene.add(startWall);
     const ceilingLights = [];
     for (let z = -3; z > corridorEnd; z -= 7) {
       const fixture = new THREE.Mesh(
@@ -392,8 +393,11 @@
       const side = index % 2 === 0 ? -1 : 1;
       const z = -3.2 - index * 2.65;
       const x = side * (corridorWidth / 2 - 0.45);
-      const frameWidth = 2.05;
-      const frameHeight = 2.55;
+      const imageAspectHint = item.image.naturalWidth && item.image.naturalHeight
+        ? item.image.naturalWidth / item.image.naturalHeight
+        : 1;
+      const frameHeight = Math.min(2.65, 3.25 / imageAspectHint);
+      const frameWidth = frameHeight * imageAspectHint;
       if (!yearGroups.has(item.yearKey)) yearGroups.set(item.yearKey, z);
       const frame = new THREE.Mesh(
         new THREE.BoxGeometry(0.16, frameHeight + 0.16, frameWidth + 0.16),
