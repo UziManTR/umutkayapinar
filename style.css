@@ -540,3 +540,70 @@ a:focus-visible,button:focus-visible{outline:2px solid #68b9ff;outline-offset:4p
   border-bottom-color:rgba(104,185,255,.22);
   box-shadow:0 12px 36px rgba(0,0,0,.18);
 }
+
+
+/* Final palette balance: deep midnight navy, cool blue planet, restrained antique gold. */
+:root{
+  --bg:#050813;
+  --surface:#0a1020;
+  --text:#eef2f8;
+  --muted:#9aa6b8;
+  --line:rgba(201,169,110,.2);
+  --gold:#c9a96e;
+  --blue:#68b9ff;
+}
+body{
+  background:
+    radial-gradient(ellipse at 80% 7%,rgba(23,75,132,.13),transparent 33%),
+    radial-gradient(ellipse at 12% 52%,rgba(14,38,78,.12),transparent 38%),
+    #050813;
+}
+.site-header{background:rgba(4,7,16,.82);border-bottom-color:rgba(201,169,110,.18)}
+.wordmark span{color:#c9a96e;text-shadow:0 0 18px rgba(201,169,110,.32)}
+.desktop-nav a::after{background:#c9a96e}
+.desktop-nav a:hover{color:#e4c995}
+.language-toggle.active{color:#d6b77d}
+.hero{background:radial-gradient(ellipse at 73% 45%,rgba(25,83,145,.12),transparent 36%),linear-gradient(120deg,rgba(255,255,255,.008),transparent 55%)}
+.hero::before{background:radial-gradient(ellipse,rgba(30,82,146,.08),transparent 68%)}
+.hero-title em,.section-heading em{color:#d6b77d;text-shadow:0 0 42px rgba(201,169,110,.09)}
+.eyebrow-line{background:#c9a96e}
+.index-line{background:#68b9ff}
+.section-label{border-color:rgba(201,169,110,.2)}
+.gold-dot{background:#c9a96e;box-shadow:0 0 12px rgba(201,169,110,.45)}
+.text-link{color:#d6b77d;border-color:rgba(201,169,110,.42)}
+.text-link:hover{color:#f5e6c7;border-color:#c9a96e}
+.year-picker{
+  background:linear-gradient(145deg,rgba(14,22,40,.84),rgba(5,8,18,.96));
+  border-color:rgba(201,169,110,.22);
+  box-shadow:0 24px 75px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.025);
+}
+.year-picker-line{background:linear-gradient(90deg,rgba(201,169,110,.75),transparent)}
+.year-button:hover{border-color:#c9a96e;color:#f5e6c7}
+.year-button.active{
+  background:linear-gradient(135deg,#e4cc9c,#c9a96e 58%,#947343);
+  color:#11101a;box-shadow:0 6px 24px rgba(201,169,110,.18)
+}
+.year-status{color:#d6b77d}
+.gallery-3d{
+  background:radial-gradient(ellipse at 50% 0%,rgba(32,83,145,.15),transparent 48%),linear-gradient(145deg,#0b1222,#050812 72%)!important;
+  border-color:rgba(201,169,110,.3)!important;
+}
+.gallery-3d-stage{
+  background:radial-gradient(ellipse at 50% 35%,#101e35,#070c18 65%,#040711)!important;
+  border-color:rgba(201,169,110,.16)!important;
+}
+.gallery-year-overlay{
+  color:#e7d2a8!important;
+  border-color:rgba(201,169,110,.5)!important;
+  background:rgba(5,8,18,.86)!important;
+  text-shadow:0 0 18px rgba(201,169,110,.18);
+}
+.gallery-3d-kicker{color:#d0b27a}
+.gallery-3d-controls button,.gallery-3d-footer button{color:#d6b77d;border-color:rgba(201,169,110,.35)}
+.gallery-3d-controls button:hover,.gallery-3d-footer button:hover{background:#c9a96e;color:#0a0c14;border-color:#c9a96e}
+.gallery-3d-loader{border-top-color:#c9a96e}
+.research{background:#080d19}
+.contact{background:radial-gradient(ellipse at 80% 50%,rgba(201,169,110,.055),transparent 28rem),#050813}
+.site-footer{background:#040711}
+.reading-progress{background:linear-gradient(90deg,#276fb7,#68b9ff,#c9a96e);box-shadow:0 0 12px rgba(104,185,255,.3)}
+.site-header.is-scrolled{background:rgba(4,7,16,.94);border-bottom-color:rgba(201,169,110,.25)}
