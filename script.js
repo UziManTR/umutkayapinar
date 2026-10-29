@@ -372,7 +372,7 @@
     items.forEach((item, index) => {
       const side = index % 2 === 0 ? -1 : 1;
       const z = -3.2 - index * 2.65;
-      const x = side * (corridorWidth / 2 - 0.14);
+      const x = side * (corridorWidth / 2 - 0.42);
       const frameWidth = 2.05;
       const frameHeight = 2.55;
       if (!yearGroups.has(item.yearKey)) yearGroups.set(item.yearKey, z);
@@ -382,15 +382,15 @@
       );
       frame.position.set(x, 2.35, z);
       galleryScene.add(frame);
-      const mat = new THREE.MeshStandardMaterial({ color: 0x242424, roughness: 0.82 });
+      const mat = new THREE.MeshStandardMaterial({ color: 0x242424, roughness: 0.82, side: THREE.DoubleSide });
       const placeholder = new THREE.Mesh(new THREE.PlaneGeometry(frameWidth, frameHeight), mat);
-      placeholder.position.set(side * (corridorWidth / 2 - 0.205), 2.35, z);
+      placeholder.position.set(side * (corridorWidth / 2 - 0.30), 2.35, z);
       placeholder.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
       placeholder.userData.artwork = item;
       placeholder.userData.z = z;
       galleryScene.add(placeholder);
       galleryArtMeshes.push(placeholder);
-      loader.load(encodeURI(item.src), texture => {
+      loader.load(new URL(item.src, document.baseURI).href, texture => {
         if (!galleryScene || !galleryScene.children.includes(placeholder)) {
           texture.dispose();
           return;
@@ -425,6 +425,7 @@
     if (galleryControls) galleryControls.dispose();
     galleryControls = new orbitModule.OrbitControls(galleryCamera, galleryRenderer.domElement);
     galleryControls.enableDamping = true;
+    galleryControls.enableRotate = false;
     galleryControls.dampingFactor = 0.06;
     galleryControls.enablePan = false;
     galleryControls.enableZoom = false;
@@ -495,7 +496,7 @@
         const art = mesh.userData.artwork;
         const side = mesh.position.x < 0 ? -1 : 1;
         const target = new threeModule.Vector3(mesh.position.x, 2.35, mesh.position.z);
-        const destination = new threeModule.Vector3(-side * 1.7, 2.55, mesh.position.z + 0.7);
+        const destination = new threeModule.Vector3(-side * 1.5, 2.55, mesh.position.z + 0.7);
         galleryControls.minDistance = 1.2;
         galleryControls.maxDistance = 18;
         animateGalleryCamera(destination, target, 1050);
