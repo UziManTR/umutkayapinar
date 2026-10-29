@@ -174,6 +174,11 @@
   const gallery3DStage = document.querySelector("#gallery-3d-stage");
   const gallery3DStatus = document.querySelector("#gallery-3d-status");
   const gallery3DCaption = document.querySelector("#gallery-3d-caption");
+  galleryYearOverlay = document.createElement("div");
+  galleryYearOverlay.className = "gallery-year-overlay";
+  galleryYearOverlay.setAttribute("aria-live", "polite");
+  galleryYearOverlay.textContent = "— 2014 —";
+  gallery3DStage?.appendChild(galleryYearOverlay);
   let threeModule = null;
   let orbitModule = null;
   let galleryRenderer = null;
@@ -193,6 +198,8 @@
   let galleryDragged = false;
   let galleryDust = null;
   let galleryCentralLight = null;
+  let galleryYearMarkers = [];
+  let galleryYearOverlay = null;
 
   const galleryText = (tr, en) => document.documentElement.lang === "en" ? en : tr;
   const setGalleryStatus = message => {
@@ -242,12 +249,9 @@
   };
   const resetGalleryView = () => {
     if (!galleryControls || !galleryCamera || !threeModule) return;
-    galleryControls.minDistance = 2.2;
-    galleryControls.maxDistance = galleryRoomRadius + 3;
-    animateGalleryCamera(
-      new threeModule.Vector3(0, 2.15, Math.max(2.2, galleryRoomRadius * 0.48)),
-      new threeModule.Vector3(0, 1.9, 0)
-    );
+    galleryControls.minDistance = 1.5;
+    galleryControls.maxDistance = 18;
+    animateGalleryCamera(new threeModule.Vector3(0, 2.25, 4.5), new threeModule.Vector3(0, 2.1, -3));
     updateGalleryCaption();
   };
   const rotateGalleryView = direction => {
@@ -264,23 +268,25 @@
     galleryScene = new THREE.Scene();
     galleryScene.background = new THREE.Color("#090b0e");
     galleryScene.fog = new THREE.Fog("#090b0e", 15, 42);
-    const visibleCards = [...document.querySelectorAll(".work-card:not(.year-hidden)")];
-    const items = visibleCards.map(card => {
+    const allCards = [...document.querySelectorAll(".work-card")];
+    const items = allCards.map(card => {
       const image = card.querySelector("img");
       return image ? {
         card, image,
         title: card.querySelector("h3")?.textContent.trim() || image.alt || "Artwork",
         year: card.querySelector(".image-index")?.textContent.trim() || "",
+        yearKey: (card.querySelector(".image-index")?.textContent.trim() || "").match(/\\d{4}/)?.[0] || "Arşiv",
         src: image.getAttribute("src")
       } : null;
-    }).filter(Boolean);
+    }).filter(Boolean).sort((a, b) => Number(a.yearKey) - Number(b.yearKey));
     if (!items.length) {
       setGalleryStatus(galleryText("Bu yıl için henüz eser yok. Önce başka bir yıl seç.", "No artworks for this year yet. Choose another year first."));
       return;
     }
     galleryRoomRadius = Math.max(5.2, items.length * 2.65 / (Math.PI * 2));
+    galleryYearMarkers = [];
     galleryCamera = new THREE.PerspectiveCamera(48, gallery3DStage.clientWidth / Math.max(1, gallery3DStage.clientHeight), 0.1, 100);
-    galleryCamera.position.set(0, 2.15, galleryRoomRadius * 0.48);
+    galleryCamera.position.set(0, 2.25, 4.5);
     galleryScene.add(new THREE.HemisphereLight(0xbdd8f0, 0x17110c, 2.0));
     const centralLight = new THREE.PointLight(0xf4e4c8, 34, galleryRoomRadius * 3.4, 1.8);
     centralLight.position.set(0, 4.2, 0);
@@ -305,54 +311,80 @@
     const blueLight = new THREE.PointLight(0x69afe8, 18, galleryRoomRadius * 2.6, 2);
     blueLight.position.set(-galleryRoomRadius * 0.5, 3, -1);
     galleryScene.add(blueLight);
+    // Long museum corridor with a real walking axis, paintings on both walls, and year groups.
+    const corridorLength = Math.max(24, items.length * 2.75 + 8);
+    const corridorWidth = 10;
+    const corridorEnd = -corridorLength;
+    galleryRoomRadius = corridorLength / 2;
     const floor = new THREE.Mesh(
-      new THREE.CircleGeometry(galleryRoomRadius + 3, 96),
-      new THREE.MeshStandardMaterial({ color: 0x17191c, roughness: 0.8, metalness: 0.15 })
+      new THREE.PlaneGeometry(corridorWidth, corridorLength),
+      new THREE.MeshStandardMaterial({ color: 0x171815, roughness: 0.72, metalness: 0.08 })
     );
     floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -0.035;
+    floor.position.set(0, -0.04, corridorEnd / 2);
     galleryScene.add(floor);
-    const floorRing = new THREE.Mesh(
-      new THREE.RingGeometry(galleryRoomRadius * 0.36, galleryRoomRadius * 0.36 + 0.018, 96),
-      new THREE.MeshBasicMaterial({ color: 0x42647b, transparent: true, opacity: 0.7, side: THREE.DoubleSide })
+    const ceiling = new THREE.Mesh(
+      new THREE.PlaneGeometry(corridorWidth, corridorLength),
+      new THREE.MeshStandardMaterial({ color: 0x10110f, roughness: 0.95, side: THREE.DoubleSide })
     );
-    floorRing.rotation.x = -Math.PI / 2;
-    floorRing.position.y = 0.005;
-    galleryScene.add(floorRing);
-    const wall = new THREE.Mesh(
-      new THREE.CylinderGeometry(galleryRoomRadius + 0.75, galleryRoomRadius + 0.75, 5.4, 96, 1, true),
-      new THREE.MeshStandardMaterial({ color: 0x202329, roughness: 0.92, metalness: 0.08, side: THREE.BackSide })
+    ceiling.rotation.x = Math.PI / 2;
+    ceiling.position.set(0, 5.4, corridorEnd / 2);
+    galleryScene.add(ceiling);
+    const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x24241f, roughness: 0.9, side: THREE.DoubleSide });
+    [-corridorWidth / 2, corridorWidth / 2].forEach(x => {
+      const wall = new THREE.Mesh(new THREE.PlaneGeometry(corridorLength, 5.4), wallMaterial);
+      wall.rotation.y = x < 0 ? Math.PI / 2 : -Math.PI / 2;
+      wall.position.set(x, 2.68, corridorEnd / 2);
+      galleryScene.add(wall);
+      const rail = new THREE.Mesh(
+        new THREE.BoxGeometry(0.06, 0.06, corridorLength),
+        new THREE.MeshStandardMaterial({ color: 0xc9a96e, metalness: 0.55, roughness: 0.38 })
+      );
+      rail.position.set(x < 0 ? x + 0.03 : x - 0.03, 4.95, corridorEnd / 2);
+      galleryScene.add(rail);
+    });
+    const endWall = new THREE.Mesh(
+      new THREE.PlaneGeometry(corridorWidth, 5.4),
+      new THREE.MeshStandardMaterial({ color: 0x24241f, roughness: 0.9, side: THREE.DoubleSide })
     );
-    wall.position.y = 2.65;
-    galleryScene.add(wall);
-    const topLine = new THREE.Mesh(
-      new THREE.TorusGeometry(galleryRoomRadius + 0.73, 0.018, 6, 100),
-      new THREE.MeshBasicMaterial({ color: 0x4c7793, transparent: true, opacity: 0.8 })
-    );
-    topLine.position.y = 5.18;
-    galleryScene.add(topLine);
+    endWall.position.set(0, 2.68, corridorEnd);
+    galleryScene.add(endWall);
+    const ceilingLights = [];
+    for (let z = -3; z > corridorEnd; z -= 7) {
+      const fixture = new THREE.Mesh(
+        new THREE.BoxGeometry(2.2, 0.06, 0.5),
+        new THREE.MeshBasicMaterial({ color: 0xe8d5ae })
+      );
+      fixture.position.set(0, 5.28, z);
+      galleryScene.add(fixture);
+      const light = new THREE.PointLight(0xffe4b2, 13, 9, 2);
+      light.position.set(0, 4.95, z);
+      galleryScene.add(light);
+      ceilingLights.push(light);
+    }
 
     const loader = new THREE.TextureLoader();
     let loaded = 0;
+    const yearGroups = new Map();
     items.forEach((item, index) => {
-      const angle = (index / items.length) * Math.PI * 2;
-      const frameWidth = 2.0;
+      const side = index % 2 === 0 ? -1 : 1;
+      const z = -3.2 - index * 2.65;
+      const x = side * (corridorWidth / 2 - 0.14);
+      const frameWidth = 2.05;
       const frameHeight = 2.55;
-      const x = Math.sin(angle) * galleryRoomRadius;
-      const z = Math.cos(angle) * galleryRoomRadius;
+      if (!yearGroups.has(item.yearKey)) yearGroups.set(item.yearKey, z);
       const frame = new THREE.Mesh(
-        new THREE.BoxGeometry(frameWidth + 0.18, frameHeight + 0.18, 0.14),
+        new THREE.BoxGeometry(0.14, frameHeight + 0.2, frameWidth + 0.2),
         new THREE.MeshStandardMaterial({ color: 0x9b8053, metalness: 0.72, roughness: 0.32 })
       );
-      frame.position.set(x, 2.15, z);
-      frame.rotation.y = angle + Math.PI;
+      frame.position.set(x, 2.35, z);
       galleryScene.add(frame);
       const mat = new THREE.MeshStandardMaterial({ color: 0x242424, roughness: 0.82 });
       const placeholder = new THREE.Mesh(new THREE.PlaneGeometry(frameWidth, frameHeight), mat);
-      placeholder.position.set(Math.sin(angle) * (galleryRoomRadius - 0.09), 2.15, Math.cos(angle) * (galleryRoomRadius - 0.09));
-      placeholder.rotation.y = angle + Math.PI;
+      placeholder.position.set(side * (corridorWidth / 2 - 0.205), 2.35, z);
+      placeholder.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
       placeholder.userData.artwork = item;
-      placeholder.userData.angle = angle;
+      placeholder.userData.z = z;
       galleryScene.add(placeholder);
       galleryArtMeshes.push(placeholder);
       loader.load(encodeURI(item.src), texture => {
@@ -379,6 +411,8 @@
         if (loaded === items.length && gallery3DStatus) gallery3DStatus.hidden = true;
       });
     });
+    galleryYearMarkers = [...yearGroups.entries()].map(([year, z]) => ({ year, z }));
+    galleryYearMarkers.sort((a, b) => b.z - a.z);
     if (gallery3DStatus) {
       gallery3DStatus.hidden = false;
       gallery3DStatus.innerHTML = '<span class="gallery-3d-loader"></span><span>' + galleryText("Eserler yükleniyor...", "Loading artworks...") + '</span>';
@@ -393,7 +427,7 @@
     galleryControls.rotateSpeed = 0.48;
     galleryControls.zoomSpeed = 0.75;
     galleryControls.minDistance = 2.2;
-    galleryControls.maxDistance = galleryRoomRadius + 3;
+    galleryControls.maxDistance = 18;
     galleryControls.target.set(0, 1.9, 0);
     galleryControls.update();
     galleryRenderer.render(galleryScene, galleryCamera);
@@ -446,15 +480,11 @@
         if (!hit) return;
         const mesh = hit.object;
         const art = mesh.userData.artwork;
-        const a = mesh.userData.angle;
-        const target = new threeModule.Vector3(mesh.position.x, 2.15, mesh.position.z);
-        const destination = new threeModule.Vector3(
-          mesh.position.x - Math.sin(a) * 2.75,
-          2.45,
-          mesh.position.z - Math.cos(a) * 2.75
-        );
-        galleryControls.minDistance = 1.4;
-        galleryControls.maxDistance = galleryRoomRadius + 3;
+        const side = mesh.position.x < 0 ? -1 : 1;
+        const target = new threeModule.Vector3(mesh.position.x, 2.35, mesh.position.z);
+        const destination = new threeModule.Vector3(-side * 1.7, 2.55, mesh.position.z + 0.7);
+        galleryControls.minDistance = 1.2;
+        galleryControls.maxDistance = 18;
         animateGalleryCamera(destination, target, 1050);
         updateGalleryCaption(art.title, art.year);
       });
@@ -485,6 +515,20 @@
       positions.needsUpdate = true;
     }
     if (galleryCentralLight) galleryCentralLight.intensity = 32 + Math.sin(performance.now() * 0.0007) * 2.2;
+    if (galleryYearOverlay && galleryCamera && galleryYearMarkers.length) {
+      const z = galleryCamera.position.z;
+      let current = galleryYearMarkers[0];
+      for (const marker of galleryYearMarkers) {
+        if (z <= marker.z + 1.1) current = marker;
+      }
+      const yearLabel = "— " + current.year + " —";
+      if (galleryYearOverlay.textContent !== yearLabel) {
+        galleryYearOverlay.textContent = yearLabel;
+        galleryYearOverlay.classList.remove("year-change");
+        void galleryYearOverlay.offsetWidth;
+        galleryYearOverlay.classList.add("year-change");
+      }
+    }
     galleryRenderer.render(galleryScene, galleryCamera);
   };
   const openGallery3D = async (shouldScroll = true) => {
