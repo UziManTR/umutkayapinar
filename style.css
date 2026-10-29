@@ -526,3 +526,17 @@ a:focus-visible,button:focus-visible{outline:2px solid #68b9ff;outline-offset:4p
   .hero-art .art-sun{animation:none!important}
   *,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}
 }
+
+/* Thin progress rail, an unobtrusive navigation cue while exploring the portfolio. */
+.reading-progress{
+  position:fixed;z-index:1000;top:0;left:0;right:0;height:2px;
+  transform:scaleX(0);transform-origin:left center;
+  background:linear-gradient(90deg,#2678c7,#68b9ff,#c8e8ff);
+  box-shadow:0 0 14px rgba(104,185,255,.55);
+  pointer-events:none;
+}
+.site-header.is-scrolled{
+  background:rgba(5,9,15,.88);
+  border-bottom-color:rgba(104,185,255,.22);
+  box-shadow:0 12px 36px rgba(0,0,0,.18);
+}
