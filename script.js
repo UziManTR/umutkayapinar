@@ -459,7 +459,7 @@
     galleryControls?.update();
     galleryRenderer.render(galleryScene, galleryCamera);
   };
-  const openGallery3D = async () => {
+  const openGallery3D = async (shouldScroll = true) => {
     if (!gallery3D || !gallery3DStage) return;
     gallery3D.hidden = false;
     galleryIsOpen = true;
@@ -470,7 +470,7 @@
       buildGalleryScene();
       cancelAnimationFrame(galleryAnimation);
       galleryAnimate();
-      gallery3D.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "nearest" });
+      if (shouldScroll) gallery3D.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "nearest" });
     } catch (_) {
       // The status inside the viewer explains the loading failure.
     }
@@ -489,6 +489,8 @@
   reset3DButton?.addEventListener("click", resetGalleryView);
   previous3DButton?.addEventListener("click", () => rotateGalleryView(-1));
   next3DButton?.addEventListener("click", () => rotateGalleryView(1));
+  // Start directly in the immersive gallery; no separate 2D gallery view.
+  openGallery3D(false);
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && galleryIsOpen) closeGallery3D();
   });
