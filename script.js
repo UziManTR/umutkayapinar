@@ -17,6 +17,25 @@
   };
   languageButtons.forEach(button => button.addEventListener("click", () => setLanguage(button.dataset.language)));
 
+  // Subtle page progress indicator and polished scrolled-header state.
+  const readingProgress = document.createElement("div");
+  readingProgress.className = "reading-progress";
+  readingProgress.setAttribute("aria-hidden", "true");
+  document.body.appendChild(readingProgress);
+  let scrollTicking = false;
+  const updateScrollChrome = () => {
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    readingProgress.style.transform = "scaleX(" + Math.min(1, Math.max(0, window.scrollY / maxScroll)) + ")";
+    document.querySelector(".site-header")?.classList.toggle("is-scrolled", window.scrollY > 24);
+    scrollTicking = false;
+  };
+  window.addEventListener("scroll", () => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(updateScrollChrome);
+  }, { passive: true });
+  updateScrollChrome();
+
   const year = document.querySelector("#year");
   if (year) year.textContent = new Date().getFullYear();
 
