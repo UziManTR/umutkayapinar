@@ -278,3 +278,13 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;op
 .art-lightbox-bottom{font-family:var(--serif);font-size:clamp(17px,2vw,25px);color:#f1eee7}.art-lightbox-bottom small{font:10px var(--sans);letter-spacing:.12em;color:#aaa69b;text-transform:uppercase}
 body.lightbox-open{overflow:hidden}@media(max-width:600px){.art-lightbox{padding:14px;gap:10px}.art-lightbox-image{max-width:100%;max-height:100%}.art-lightbox-bottom{align-items:start;flex-direction:column;gap:3px}}
 @media(prefers-reduced-motion:reduce){.art-lightbox{transition:none}}
+
+
+/* Fix hero headline wrapping into the section below */
+.hero{height:auto;min-height:max(800px,100svh);overflow:clip}
+.hero-content{width:100%;max-width:min(100%,980px);padding-top:42px;padding-bottom:52px}
+.hero-title{font-size:clamp(68px,8.2vw,122px);line-height:1.04;max-width:100%;margin-top:24px;margin-bottom:30px;text-wrap:pretty}
+@media(min-width:1000px){.hero-content{max-width:min(100%,980px)}.hero-title{font-size:clamp(78px,8.2vw,122px)}}
+@media(max-width:850px){.hero{min-height:780px;height:auto}.hero-content{padding:70px 0 48px}.hero-title{font-size:clamp(60px,9vw,92px)}}
+@media(max-width:600px){.hero{min-height:760px;height:auto;padding-top:100px;padding-bottom:50px}.hero-content{padding:52px 0 42px}.hero-title{font-size:clamp(50px,11.7vw,70px);line-height:1.04;margin:22px 0 28px}.hero-bottom{margin-top:4px}}
+@media(max-width:360px){.hero-title{font-size:48px}}
