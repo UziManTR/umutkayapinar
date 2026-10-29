@@ -362,3 +362,14 @@ a,button{scroll-margin-top:90px}
 @keyframes galleryCanvasReveal{from{opacity:0;filter:brightness(.5)}to{opacity:1;filter:brightness(1)}}
 @media(max-width:600px){.gallery-3d{padding:12px}.gallery-3d-stage{height:440px}}
 @media(prefers-reduced-motion:reduce){.hero-art .art-sun,.hero-art .shape-one,.hero-art .shape-two,.gallery-3d{animation:none!important}}
+
+
+/* Walk-through corridor gallery and live year marker. */
+.gallery-3d-stage{perspective:1100px;background:linear-gradient(180deg,#11120f,#090a09 72%);overflow:hidden}
+.gallery-year-overlay{position:absolute;z-index:5;top:18px;left:50%;transform:translateX(-50%);padding:9px 19px;border:1px solid rgba(201,169,110,.48);background:rgba(8,9,8,.76);backdrop-filter:blur(12px);color:#e5c98f;font:500 12px/1 var(--sans);letter-spacing:.24em;text-shadow:0 0 18px rgba(201,169,110,.25);white-space:nowrap;pointer-events:none;box-shadow:0 8px 30px #0005}
+.gallery-year-overlay.year-change{animation:yearMarkerPulse .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes yearMarkerPulse{0%{opacity:.25;transform:translate(-50%,-8px) scale(.94);filter:blur(3px)}65%{opacity:1;transform:translate(-50%,2px) scale(1.04);filter:blur(0)}100%{transform:translate(-50%,0) scale(1)}}
+.gallery-3d-stage canvas{position:relative;z-index:1}
+.gallery-year-overlay{z-index:6}
+@media(max-width:600px){.gallery-year-overlay{top:12px;padding:8px 14px;font-size:11px;letter-spacing:.2em}}
+@media(prefers-reduced-motion:reduce){.gallery-year-overlay.year-change{animation:none}}
