@@ -275,7 +275,7 @@
         card, image,
         title: card.querySelector("h3")?.textContent.trim() || image.alt || "Artwork",
         year: card.querySelector(".image-index")?.textContent.trim() || "",
-        yearKey: (card.querySelector(".image-index")?.textContent.trim() || "").match(/\\d{4}/)?.[0] || "Arşiv",
+        yearKey: (card.querySelector(".image-index")?.textContent.trim() || "").match(/\d{4}/)?.[0] || "Arşiv",
         src: image.getAttribute("src")
       } : null;
     }).filter(Boolean).sort((a, b) => Number(a.yearKey) - Number(b.yearKey));
@@ -315,6 +315,9 @@
     const corridorLength = Math.max(24, items.length * 2.75 + 8);
     const corridorWidth = 10;
     const corridorEnd = -corridorLength;
+    galleryScene.fog = new THREE.Fog("#090b0e", 18, corridorLength + 12);
+    galleryCamera.far = corridorLength + 30;
+    galleryCamera.updateProjectionMatrix();
     galleryRoomRadius = corridorLength / 2;
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(corridorWidth, corridorLength),
