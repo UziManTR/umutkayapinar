@@ -191,6 +191,8 @@
   let galleryCameraTween = null;
   let galleryPointerDown = null;
   let galleryDragged = false;
+  let galleryDust = null;
+  let galleryCentralLight = null;
 
   const galleryText = (tr, en) => document.documentElement.lang === "en" ? en : tr;
   const setGalleryStatus = message => {
@@ -283,6 +285,23 @@
     const centralLight = new THREE.PointLight(0xf4e4c8, 34, galleryRoomRadius * 3.4, 1.8);
     centralLight.position.set(0, 4.2, 0);
     galleryScene.add(centralLight);
+    galleryCentralLight = centralLight;
+
+    // Tiny floating dust catches the gallery lights for a living, museum-like atmosphere.
+    const dustCount = 180;
+    const dustPositions = new Float32Array(dustCount * 3);
+    for (let i = 0; i < dustCount; i++) {
+      dustPositions[i * 3] = (Math.random() - 0.5) * galleryRoomRadius * 2.1;
+      dustPositions[i * 3 + 1] = Math.random() * 4.8 + 0.15;
+      dustPositions[i * 3 + 2] = (Math.random() - 0.5) * galleryRoomRadius * 2.1;
+    }
+    const dustGeometry = new THREE.BufferGeometry();
+    dustGeometry.setAttribute("position", new THREE.BufferAttribute(dustPositions, 3));
+    galleryDust = new THREE.Points(
+      dustGeometry,
+      new THREE.PointsMaterial({ color: 0xe5cf9f, size: 0.035, transparent: true, opacity: 0.72, depthWrite: false, sizeAttenuation: true })
+    );
+    galleryScene.add(galleryDust);
     const blueLight = new THREE.PointLight(0x69afe8, 18, galleryRoomRadius * 2.6, 2);
     blueLight.position.set(-galleryRoomRadius * 0.5, 3, -1);
     galleryScene.add(blueLight);
@@ -457,6 +476,15 @@
       if (progress >= 1) galleryCameraTween = null;
     }
     galleryControls?.update();
+    if (galleryDust && threeModule) {
+      const positions = galleryDust.geometry.attributes.position;
+      for (let i = 0; i < positions.count; i++) {
+        positions.array[i * 3 + 1] += 0.0025 + (i % 4) * 0.00035;
+        if (positions.array[i * 3 + 1] > 5.2) positions.array[i * 3 + 1] = 0.12;
+      }
+      positions.needsUpdate = true;
+    }
+    if (galleryCentralLight) galleryCentralLight.intensity = 32 + Math.sin(performance.now() * 0.0007) * 2.2;
     galleryRenderer.render(galleryScene, galleryCamera);
   };
   const openGallery3D = async (shouldScroll = true) => {
