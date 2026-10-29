@@ -325,3 +325,10 @@ body.lightbox-open{overflow:hidden}@media(max-width:600px){.art-lightbox{padding
  .gallery-3d-footer button{align-self:flex-start}
 }
 @media(prefers-reduced-motion:reduce){.gallery-3d-loader{animation:none}}
+
+/* Gallery polish: remove the hero's blue orb/orbit lines and style camera controls. */
+.hero-art .art-sun,.hero-art .art-orbit{display:none!important}
+.gallery-3d-controls{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.gallery-3d-controls button{border:1px solid rgba(201,169,110,.35);padding:7px 12px;background:transparent;color:var(--blue);cursor:pointer;transition:background .25s,color .25s,border-color .25s}
+.gallery-3d-controls button:hover{background:var(--blue);color:#111;border-color:var(--blue)}
+@media(max-width:600px){.gallery-3d-controls{gap:10px}.gallery-3d-controls button{padding:8px 10px}}
