@@ -117,6 +117,7 @@
     });
     if (yearStatus) yearStatus.innerHTML = selectedLabel + ' <span>' + (document.documentElement.lang === "en" ? "selected" : "seçildi") + '</span>';
     if (yearEmpty) yearEmpty.hidden = visibleCount > 0;
+    window.refreshUmut3DGallery?.();
   };
   yearButtons.forEach(button => button.addEventListener("click", () => selectYear(button.dataset.year)));
   if (yearButtons.length) selectYear("2014");
@@ -161,5 +162,290 @@
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && lightbox.classList.contains("open")) closeLightbox();
   });
+
+
+  // Three.js immersive gallery: paintings mounted around a circular exhibition room.
+  const open3DButton = document.querySelector("#open-3d-gallery");
+  const close3DButton = document.querySelector("#close-3d-gallery");
+  const reset3DButton = document.querySelector("#gallery-3d-reset");
+  const gallery3D = document.querySelector("#gallery-3d");
+  const gallery3DStage = document.querySelector("#gallery-3d-stage");
+  const gallery3DStatus = document.querySelector("#gallery-3d-status");
+  const gallery3DCaption = document.querySelector("#gallery-3d-caption");
+  let threeModule = null;
+  let orbitModule = null;
+  let galleryRenderer = null;
+  let galleryScene = null;
+  let galleryCamera = null;
+  let galleryControls = null;
+  let galleryRaycaster = null;
+  let galleryPointer = null;
+  let galleryResizeObserver = null;
+  let galleryAnimation = 0;
+  let galleryIsOpen = false;
+  let galleryRoomRadius = 6;
+  let galleryArtMeshes = [];
+  let galleryFrameId = 0;
+
+  const galleryText = (tr, en) => document.documentElement.lang === "en" ? en : tr;
+  const setGalleryStatus = message => {
+    if (!gallery3DStatus) return;
+    gallery3DStatus.hidden = false;
+    gallery3DStatus.innerHTML = "";
+    const label = document.createElement("span");
+    label.textContent = message;
+    gallery3DStatus.appendChild(label);
+  };
+  const updateGalleryCaption = (title, yearLabel) => {
+    if (!gallery3DCaption) return;
+    gallery3DCaption.innerHTML = "";
+    const titleNode = document.createElement("span");
+    titleNode.textContent = title || galleryText("Bir esere tıklayarak yakından incele", "Click a painting to inspect it");
+    gallery3DCaption.appendChild(titleNode);
+    if (yearLabel) {
+      const yearNode = document.createElement("small");
+      yearNode.textContent = yearLabel;
+      gallery3DCaption.appendChild(yearNode);
+    }
+  };
+  const disposeGalleryScene = () => {
+    if (!galleryScene || !threeModule) return;
+    galleryScene.traverse(object => {
+      if (object.geometry) object.geometry.dispose();
+      if (object.material) {
+        const materials = Array.isArray(object.material) ? object.material : [object.material];
+        materials.forEach(material => {
+          if (material.map) material.map.dispose();
+          material.dispose();
+        });
+      }
+    });
+    galleryArtMeshes = [];
+  };
+  const resetGalleryView = () => {
+    if (!galleryControls || !galleryCamera) return;
+    galleryControls.target.set(0, 1.9, 0);
+    galleryCamera.position.set(0, 2.15, Math.max(2.2, galleryRoomRadius * 0.48));
+    galleryControls.minDistance = 2.2;
+    galleryControls.maxDistance = galleryRoomRadius + 3;
+    galleryControls.update();
+    updateGalleryCaption();
+  };
+  const buildGalleryScene = () => {
+    if (!threeModule || !galleryRenderer || !gallery3DStage) return;
+    const THREE = threeModule;
+    disposeGalleryScene();
+    galleryScene = new THREE.Scene();
+    galleryScene.background = new THREE.Color("#090b0e");
+    galleryScene.fog = new THREE.Fog("#090b0e", 15, 42);
+    const visibleCards = [...document.querySelectorAll(".work-card:not(.year-hidden)")];
+    const items = visibleCards.map(card => {
+      const image = card.querySelector("img");
+      return image ? {
+        card, image,
+        title: card.querySelector("h3")?.textContent.trim() || image.alt || "Artwork",
+        year: card.querySelector(".image-index")?.textContent.trim() || "",
+        src: image.getAttribute("src")
+      } : null;
+    }).filter(Boolean);
+    if (!items.length) {
+      setGalleryStatus(galleryText("Bu yıl için henüz eser yok. Önce başka bir yıl seç.", "No artworks for this year yet. Choose another year first."));
+      return;
+    }
+    galleryRoomRadius = Math.max(5.2, items.length * 2.65 / (Math.PI * 2));
+    galleryCamera = new THREE.PerspectiveCamera(48, gallery3DStage.clientWidth / Math.max(1, gallery3DStage.clientHeight), 0.1, 100);
+    galleryCamera.position.set(0, 2.15, galleryRoomRadius * 0.48);
+    galleryScene.add(new THREE.HemisphereLight(0xbdd8f0, 0x17110c, 2.0));
+    const centralLight = new THREE.PointLight(0xf4e4c8, 34, galleryRoomRadius * 3.4, 1.8);
+    centralLight.position.set(0, 4.2, 0);
+    galleryScene.add(centralLight);
+    const blueLight = new THREE.PointLight(0x69afe8, 18, galleryRoomRadius * 2.6, 2);
+    blueLight.position.set(-galleryRoomRadius * 0.5, 3, -1);
+    galleryScene.add(blueLight);
+    const floor = new THREE.Mesh(
+      new THREE.CircleGeometry(galleryRoomRadius + 3, 96),
+      new THREE.MeshStandardMaterial({ color: 0x17191c, roughness: 0.8, metalness: 0.15 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -0.035;
+    galleryScene.add(floor);
+    const floorRing = new THREE.Mesh(
+      new THREE.RingGeometry(galleryRoomRadius * 0.36, galleryRoomRadius * 0.36 + 0.018, 96),
+      new THREE.MeshBasicMaterial({ color: 0x42647b, transparent: true, opacity: 0.7, side: THREE.DoubleSide })
+    );
+    floorRing.rotation.x = -Math.PI / 2;
+    floorRing.position.y = 0.005;
+    galleryScene.add(floorRing);
+    const wall = new THREE.Mesh(
+      new THREE.CylinderGeometry(galleryRoomRadius + 0.75, galleryRoomRadius + 0.75, 5.4, 96, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0x202329, roughness: 0.92, metalness: 0.08, side: THREE.BackSide })
+    );
+    wall.position.y = 2.65;
+    galleryScene.add(wall);
+    const topLine = new THREE.Mesh(
+      new THREE.TorusGeometry(galleryRoomRadius + 0.73, 0.018, 6, 100),
+      new THREE.MeshBasicMaterial({ color: 0x4c7793, transparent: true, opacity: 0.8 })
+    );
+    topLine.position.y = 5.18;
+    galleryScene.add(topLine);
+
+    const loader = new THREE.TextureLoader();
+    let loaded = 0;
+    items.forEach((item, index) => {
+      const angle = (index / items.length) * Math.PI * 2;
+      const frameWidth = 2.0;
+      const frameHeight = 2.55;
+      const x = Math.sin(angle) * galleryRoomRadius;
+      const z = Math.cos(angle) * galleryRoomRadius;
+      const frame = new THREE.Mesh(
+        new THREE.BoxGeometry(frameWidth + 0.18, frameHeight + 0.18, 0.14),
+        new THREE.MeshStandardMaterial({ color: 0x9b8053, metalness: 0.72, roughness: 0.32 })
+      );
+      frame.position.set(x, 2.15, z);
+      frame.rotation.y = angle + Math.PI;
+      galleryScene.add(frame);
+      const mat = new THREE.MeshStandardMaterial({ color: 0x242424, roughness: 0.82 });
+      const placeholder = new THREE.Mesh(new THREE.PlaneGeometry(frameWidth, frameHeight), mat);
+      placeholder.position.set(Math.sin(angle) * (galleryRoomRadius - 0.09), 2.15, Math.cos(angle) * (galleryRoomRadius - 0.09));
+      placeholder.rotation.y = angle + Math.PI;
+      placeholder.userData.artwork = item;
+      placeholder.userData.angle = angle;
+      galleryScene.add(placeholder);
+      galleryArtMeshes.push(placeholder);
+      loader.load(encodeURI(item.src), texture => {
+        if (!galleryScene || !galleryScene.children.includes(placeholder)) {
+          texture.dispose();
+          return;
+        }
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = Math.min(8, galleryRenderer.capabilities.getMaxAnisotropy());
+        const imageAspect = texture.image.width / Math.max(1, texture.image.height);
+        const maxAspect = frameWidth / frameHeight;
+        let w = frameWidth, h = frameHeight;
+        if (imageAspect > maxAspect) h = frameWidth / imageAspect;
+        else w = frameHeight * imageAspect;
+        placeholder.geometry.dispose();
+        placeholder.geometry = new THREE.PlaneGeometry(w, h);
+        placeholder.material.map = texture;
+        placeholder.material.color.set(0xffffff);
+        placeholder.material.needsUpdate = true;
+        loaded++;
+        if (loaded === items.length && gallery3DStatus) gallery3DStatus.hidden = true;
+      }, undefined, () => {
+        loaded++;
+        if (loaded === items.length && gallery3DStatus) gallery3DStatus.hidden = true;
+      });
+    });
+    if (gallery3DStatus) {
+      gallery3DStatus.hidden = false;
+      gallery3DStatus.innerHTML = '<span class="gallery-3d-loader"></span><span>' + galleryText("Eserler yükleniyor...", "Loading artworks...") + '</span>';
+    }
+    galleryRaycaster = new THREE.Raycaster();
+    galleryPointer = new THREE.Vector2();
+    if (galleryControls) galleryControls.dispose();
+    galleryControls = new orbitModule.OrbitControls(galleryCamera, galleryRenderer.domElement);
+    galleryControls.enableDamping = true;
+    galleryControls.dampingFactor = 0.06;
+    galleryControls.enablePan = false;
+    galleryControls.rotateSpeed = 0.48;
+    galleryControls.zoomSpeed = 0.75;
+    galleryControls.minDistance = 2.2;
+    galleryControls.maxDistance = galleryRoomRadius + 3;
+    galleryControls.target.set(0, 1.9, 0);
+    galleryControls.update();
+    galleryRenderer.render(galleryScene, galleryCamera);
+    updateGalleryCaption();
+  };
+  const ensureGalleryRenderer = async () => {
+    if (galleryRenderer) return;
+    const status = galleryText("Three.js yükleniyor...", "Loading Three.js...");
+    setGalleryStatus(status);
+    try {
+      [threeModule, orbitModule] = await Promise.all([
+        import("three"),
+        import("three/addons/controls/OrbitControls.js")
+      ]);
+      const THREE = threeModule;
+      galleryRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+      galleryRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
+      galleryRenderer.outputColorSpace = THREE.SRGBColorSpace;
+      galleryRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+      galleryRenderer.toneMappingExposure = 1.12;
+      galleryRenderer.domElement.setAttribute("aria-label", "Drag to look around the 3D art gallery");
+      galleryRenderer.domElement.tabIndex = 0;
+      gallery3DStage.appendChild(galleryRenderer.domElement);
+      galleryRenderer.setSize(gallery3DStage.clientWidth, gallery3DStage.clientHeight, false);
+      galleryResizeObserver = new ResizeObserver(() => {
+        if (!galleryRenderer || !galleryCamera || !gallery3DStage.clientWidth) return;
+        galleryCamera.aspect = gallery3DStage.clientWidth / Math.max(1, gallery3DStage.clientHeight);
+        galleryCamera.updateProjectionMatrix();
+        galleryRenderer.setSize(gallery3DStage.clientWidth, gallery3DStage.clientHeight, false);
+      });
+      galleryResizeObserver.observe(gallery3DStage);
+      galleryRenderer.domElement.addEventListener("click", event => {
+        if (!galleryRaycaster || !galleryCamera || !galleryArtMeshes.length) return;
+        const rect = galleryRenderer.domElement.getBoundingClientRect();
+        galleryPointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+        galleryRaycaster.setFromCamera(galleryPointer, galleryCamera);
+        const hit = galleryRaycaster.intersectObjects(galleryArtMeshes, false)[0];
+        if (!hit) return;
+        const mesh = hit.object;
+        const art = mesh.userData.artwork;
+        const a = mesh.userData.angle;
+        galleryControls.target.set(mesh.position.x, 2.15, mesh.position.z);
+        galleryCamera.position.set(
+          mesh.position.x - Math.sin(a) * 2.75,
+          2.45,
+          mesh.position.z - Math.cos(a) * 2.75
+        );
+        galleryControls.minDistance = 1.4;
+        galleryControls.maxDistance = galleryRoomRadius + 3;
+        galleryControls.update();
+        updateGalleryCaption(art.title, art.year);
+      });
+    } catch (error) {
+      console.error("3D gallery could not load:", error);
+      setGalleryStatus(galleryText("3D galeri yüklenemedi. İnternet bağlantısını kontrol edip tekrar dene.", "The 3D gallery could not load. Check your connection and try again."));
+      throw error;
+    }
+  };
+  const galleryAnimate = () => {
+    if (!galleryIsOpen || !galleryRenderer || !galleryScene || !galleryCamera) return;
+    galleryAnimation = requestAnimationFrame(galleryAnimate);
+    galleryControls?.update();
+    galleryRenderer.render(galleryScene, galleryCamera);
+  };
+  const openGallery3D = async () => {
+    if (!gallery3D || !gallery3DStage) return;
+    gallery3D.hidden = false;
+    galleryIsOpen = true;
+    open3DButton?.setAttribute("aria-expanded", "true");
+    setGalleryStatus(galleryText("Galeri hazırlanıyor...", "Preparing the gallery..."));
+    try {
+      await ensureGalleryRenderer();
+      buildGalleryScene();
+      cancelAnimationFrame(galleryAnimation);
+      galleryAnimate();
+      gallery3D.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "nearest" });
+    } catch (_) {
+      // The status inside the viewer explains the loading failure.
+    }
+  };
+  const closeGallery3D = () => {
+    galleryIsOpen = false;
+    gallery3D.hidden = true;
+    open3DButton?.setAttribute("aria-expanded", "false");
+    cancelAnimationFrame(galleryAnimation);
+  };
+  window.refreshUmut3DGallery = () => {
+    if (galleryIsOpen && galleryRenderer) buildGalleryScene();
+  };
+  open3DButton?.addEventListener("click", openGallery3D);
+  close3DButton?.addEventListener("click", closeGallery3D);
+  reset3DButton?.addEventListener("click", resetGalleryView);
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && galleryIsOpen) closeGallery3D();
+  });
+
 
 })();
