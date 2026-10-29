@@ -96,9 +96,13 @@
   const yearEmpty = document.querySelector(".year-empty");
   const selectYear = selectedYear => {
     let visibleCount = 0;
+    const selectedButton = [...yearButtons].find(button => button.dataset.year === String(selectedYear));
+    const selectedLabel = selectedButton?.textContent.trim() || String(selectedYear);
     artworkCards.forEach(card => {
       const stamp = card.querySelector(".image-index")?.textContent.trim() || "";
-      const matches = stamp.startsWith(String(selectedYear) + " ·");
+      const matches = selectedYear === "small-things"
+        ? stamp.startsWith("Küçük Şeyler ·")
+        : stamp.startsWith(String(selectedYear) + " ·");
       card.classList.toggle("year-hidden", !matches);
       if (matches) {
         visibleCount++;
@@ -111,9 +115,9 @@
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
     });
-    if (yearStatus) yearStatus.innerHTML = selectedYear + ' <span>' + (document.documentElement.lang === "en" ? "selected" : "yılı seçildi") + '</span>';
+    if (yearStatus) yearStatus.innerHTML = selectedLabel + ' <span>' + (document.documentElement.lang === "en" ? "selected" : "seçildi") + '</span>';
     if (yearEmpty) yearEmpty.hidden = visibleCount > 0;
   };
   yearButtons.forEach(button => button.addEventListener("click", () => selectYear(button.dataset.year)));
-  if (yearButtons.length) selectYear(2014);
+  if (yearButtons.length) selectYear("2014");
 })();
